@@ -1,0 +1,8 @@
+requests == 2.18.4
+numpy==1.13.3
+pandas == 0.20.3
+statsmodels ==0.8.0
+pymongo == 3.7.2
+lxml == 4.3.3
+matplotlib == 2.0.2
+websocket-client == 0.56.0
