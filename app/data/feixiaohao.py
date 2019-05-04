@@ -168,7 +168,7 @@ def main():
         logging.info("币种持币信息插入集合完成")
         holds_list.clear()
        # '''
-        time.sleep(100)
+        time.sleep(60*60*24)
     '''
         executor_market = ThreadPoolExecutor(max_workers=200)
         all_task_markert = [executor_market.submit(run_market, (code)) for code in code_collect.find()]
