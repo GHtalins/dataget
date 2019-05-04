@@ -158,17 +158,20 @@ def main():
        '''
 
        # '''
-        logging.info("开始获取币种持币信息")
-        executor_holds = ThreadPoolExecutor(max_workers=50)
-        all_task_holds = [executor_holds.submit(run_holds, (code)) for code in code_collect.find()]
-        for future in as_completed(all_task_holds,300):
-            code = future.result()
-            logging.info("币种:{} 对应持币信息获取完成.".format(code))
-        MongoDBOpera().insert_list_to_collection(holds_collect,holds_list)
-        logging.info("币种持币信息插入集合完成")
-        holds_list.clear()
-       # '''
-        time.sleep(60*60*24)
+        try:
+            logging.info("开始获取币种持币信息")
+            executor_holds = ThreadPoolExecutor(max_workers=50)
+            all_task_holds = [executor_holds.submit(run_holds, (code)) for code in code_collect.find()]
+            for future in as_completed(all_task_holds,300):
+                code = future.result()
+                logging.info("币种:{} 对应持币信息获取完成.".format(code))
+            MongoDBOpera().insert_list_to_collection(holds_collect,holds_list)
+            logging.info("币种持币信息插入集合完成")
+            holds_list.clear()
+
+            time.sleep(60*60*24)
+        except Exception as e:
+            logging.error(u'main存在线程执行失败', e)
     '''
         executor_market = ThreadPoolExecutor(max_workers=200)
         all_task_markert = [executor_market.submit(run_market, (code)) for code in code_collect.find()]
