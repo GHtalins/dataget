@@ -4,7 +4,7 @@
 try:
     from app.config.read_cfg import ConfigOp
 except Exception as e:
-    from config.read_cfg import ConfigOp
+    from trade.app.config.read_cfg import ConfigOp
 
 from pymongo import MongoClient
 

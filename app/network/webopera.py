@@ -5,7 +5,7 @@ from urllib import request
 try:
     from app.format.webformat import WebFormat
 except Exception as e:
-    from format.webformat import WebFormat
+    from trade.app.format.webformat import WebFormat
 
 import logging
 
