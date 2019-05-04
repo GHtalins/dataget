@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import  sys
+sys.path.append("/trade/app")
 
 from urllib import request
 try:
     from app.format.webformat import WebFormat
 except Exception as e:
-    from trade.app.format.webformat import WebFormat
+    from format.webformat import WebFormat
 
 import logging
 

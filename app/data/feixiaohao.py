@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+import  sys
+sys.path.append("/trade/app")
 try:
     from app.network.dbopera import MongoDBOpera
     from app.network.webopera import WebOpera
     from app.format.webformat import WebFormat
 except Exception as e:
-    from trade.app.network.dbopera import MongoDBOpera
-    from trade.app.network.webopera import WebOpera
-    from trade.app.format.webformat import WebFormat
+    from network.dbopera import MongoDBOpera
+    from network.webopera import WebOpera
+    from format.webformat import WebFormat
 
 from concurrent.futures import ThreadPoolExecutor,as_completed
 
