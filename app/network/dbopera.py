@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+try:
+    from app.config.read_cfg import ConfigOp
+except Exception as e:
+    from config.read_cfg import ConfigOp
+
 from pymongo import MongoClient
-from app.config.read_cfg import ConfigOp
+
 import  logging
 class MongoDBOpera:
     #初始化，连接MONGODB数据库

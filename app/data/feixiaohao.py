@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+try:
+    from app.network.dbopera import MongoDBOpera
+    from app.network.webopera import WebOpera
+    from app.format.webformat import WebFormat
+except Exception as e:
+    from network.dbopera import MongoDBOpera
+    from network.webopera import WebOpera
+    from format.webformat import WebFormat
 
-from app.network.dbopera import MongoDBOpera
-from app.network.webopera import WebOpera
-from app.format.webformat import WebFormat
 from concurrent.futures import ThreadPoolExecutor,as_completed
 
 import logging

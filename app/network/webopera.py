@@ -2,7 +2,11 @@
 # -*- coding: utf-8 -*-
 
 from urllib import request
-from app.format.webformat import WebFormat
+try:
+    from app.format.webformat import WebFormat
+except Exception as e:
+    from format.webformat import WebFormat
+
 import logging
 
 class WebOpera():
