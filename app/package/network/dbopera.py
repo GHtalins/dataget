@@ -3,7 +3,7 @@
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 try:
     from app.package.config.read_cfg import ConfigOp
 except Exception as e:
