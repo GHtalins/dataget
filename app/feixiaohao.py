@@ -160,14 +160,14 @@ def multi_thread(task):
 def main():
     #logging.info("=====================" + os.getcwd())
     while(1):
-        '''
+
         logging.info("开始获取币种基础信息")
         executor = ThreadPoolExecutor(max_workers=24)
         all_task = [executor.submit(run_page, (page)) for page in range(1,25)]
-        for future in as_completed(all_task):
+        for future in as_completed(all_task,300):
             data = future.result()
         logging.info("币种基础信息获取完成")
-       '''
+
 
        # '''
         try:
