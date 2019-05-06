@@ -4,16 +4,18 @@ import logging
 import time
 
 import os
-logging.info("====================="+os.getcwd())
+'''
 try:
+    #logging.info("=====================" + os.getcwd())
     from app.network.dbopera import MongoDBOpera
     from app.network.webopera import WebOpera
     from app.format.webformat import WebFormat
 except Exception as e:
+    #logging.info("=====================" + os.getcwd())
     from network.dbopera import MongoDBOpera
     from network.webopera import WebOpera
     from format.webformat import WebFormat
-
+'''
 from concurrent.futures import ThreadPoolExecutor,as_completed
 
 
@@ -156,6 +158,7 @@ def multi_thread(task):
         all_task_holds = [executor_market.submit(run_market, (code)) for code in code_collect.find()]
 
 def main():
+    logging.info("=====================" + os.getcwd())
     while(1):
         '''
         logging.info("开始获取币种基础信息")
@@ -193,6 +196,7 @@ def main():
 
 
 if __name__ == '__main__':
-    initDB()
-    main()
+    logging.info("=====================" + os.getcwd())
+    #initDB()
+    #main()
 
