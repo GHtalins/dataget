@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import  sys
-sys.path.append("/trade/app")
+
 try:
     from app.config.read_cfg import ConfigOp
 except Exception as e:

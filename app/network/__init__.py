@@ -1,1 +1,2 @@
-__all__ = ['MongoDBOpera', 'WebOpera']
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-

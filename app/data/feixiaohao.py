@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import logging
+import time
 
-import  sys
-sys.path.append("/trade/app")
+import os
+logging.info("====================="+os.getcwd())
 try:
     from app.network.dbopera import MongoDBOpera
     from app.network.webopera import WebOpera
@@ -14,8 +16,7 @@ except Exception as e:
 
 from concurrent.futures import ThreadPoolExecutor,as_completed
 
-import logging
-import time
+
 
 code_collect = None
 desc_collect = None
