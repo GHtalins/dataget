@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from urllib import request
 try:
     from app.format.webformat import WebFormat
 except Exception as e:
-    from format.webformat import WebFormat
+    from ..format.webformat import WebFormat
 
 import logging
 
