@@ -101,6 +101,8 @@ def run_page(page):
                         logging.info('获取币种:' + strs["code"] + "描述信息,插入DESC集合")
                     else:
                         logging.info('获取币种:' + strs["code"] + "描述信息失败，未插入DESC集合")
+        else:
+            logging.warning("第"+str(page)+"页货币列表获取失败")
         return page
     except Exception as e:
         logging.error(u'run_page获取货币列表页' + str(page) + '数据失败', e)
@@ -121,6 +123,7 @@ def run_holds(item):
                                 'percentage_top50': hold_info["percentage_top50"],
                                 'update_time': hold_info["update_time"],
                                 'holders_list': hold_info["holders_list"]}
+            holds_store_info["local_time"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             holds_list.append(holds_store_info)
         return code
     except Exception as e:
@@ -157,6 +160,14 @@ def multi_thread(task):
         executor_market = ThreadPoolExecutor(max_workers=10)
         all_task_holds = [executor_market.submit(run_market, (code)) for code in code_collect.find()]
 
+def run_wait():
+    for i in range(60 * 60 * 24):
+        time.sleep(1)
+        deadline=int(60 * 60 * 24 - i)
+        hour=deadline//3600
+        minus=(deadline%3600)//60
+        sec=deadline%60
+        logging.info(f"下次获取货币信息倒计时:{hour}时:{minus}分:{sec}秒")
 def main():
     #logging.info("=====================" + os.getcwd())
     while(1):
@@ -180,8 +191,7 @@ def main():
             MongoDBOpera().insert_list_to_collection(holds_collect,holds_list)
             logging.info("币种持币信息插入集合完成")
             holds_list.clear()
-
-            time.sleep(60*60*24)
+            run_wait()
         except Exception as e:
             logging.error(u'main存在线程执行失败', e)
     '''
@@ -196,8 +206,6 @@ def main():
 
 
 if __name__ == '__main__':
-    #print(os.path.join(os.path.dirname(__file__), '..'))
-    #logging.info("=====================" + os.path.abspath( __file__))
     initDB()
     main()
 
