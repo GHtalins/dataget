@@ -4,7 +4,7 @@ import logging
 import time
 
 import os
-'''
+
 try:
     #logging.info("=====================" + os.getcwd())
     from app.network.dbopera import MongoDBOpera
@@ -15,7 +15,7 @@ except Exception as e:
     from network.dbopera import MongoDBOpera
     from network.webopera import WebOpera
     from format.webformat import WebFormat
-'''
+
 from concurrent.futures import ThreadPoolExecutor,as_completed
 
 
@@ -196,7 +196,7 @@ def main():
 
 
 if __name__ == '__main__':
-    logging.info("=====================" + os.path.abspath( __file__))
-    #initDB()
-    #main()
+    #logging.info("=====================" + os.path.abspath( __file__))
+    initDB()
+    main()
 
