@@ -196,7 +196,7 @@ def main():
 
 
 if __name__ == '__main__':
-    logging.info("=====================" + os.getcwd())
+    logging.info("=====================" + os.path.abspath( __file__))
     #initDB()
     #main()
 
