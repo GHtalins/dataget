@@ -8,7 +8,7 @@ from urllib import request
 try:
     from app.package.format.webformat import WebFormat
 except Exception as e:
-    from package.format import WebFormat
+    from ...package.format import WebFormat
 
 import logging
 

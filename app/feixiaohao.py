@@ -14,9 +14,9 @@ try:
     from app.package.format.webformat import WebFormat
 except Exception as e:
     #logging.info("=====================" + os.getcwd())
-    from ..package.network import MongoDBOpera
-    from ..package.network import WebOpera
-    from ..package.format import WebFormat
+    from .package.network import MongoDBOpera
+    from .package.network import WebOpera
+    from .package.format import WebFormat
 
 from concurrent.futures import ThreadPoolExecutor,as_completed
 
