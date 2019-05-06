@@ -17,6 +17,9 @@ COPY ./  /trade
 COPY base.txt /app
 COPY requirements.txt /app
 
+ENV PYTHONPATH "${PYTONPATH}:/trade"
+ENV PYTHONPATH "${PYTONPATH}:/trade/app"
+
 #更新pip 版本
 RUN pip install -U pip
 
