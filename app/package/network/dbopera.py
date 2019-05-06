@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import sys, os
+import os
+import sys
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 try:
-    from app.config.read_cfg import ConfigOp
+    from app.package.config.read_cfg import ConfigOp
 except Exception as e:
-    from ..config.read_cfg import ConfigOp
+    from package.config.read_cfg import ConfigOp
 
 from pymongo import MongoClient
 

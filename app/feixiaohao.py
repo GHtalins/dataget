@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import logging
+import os
+import sys
 import time
 
-
-import sys, os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+#sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 try:
     #logging.info("=====================" + os.getcwd())
-    from app.network.dbopera import MongoDBOpera
-    from app.network.webopera import WebOpera
-    from app.format.webformat import WebFormat
+    from app.package.network.dbopera import MongoDBOpera
+    from app.package.network.webopera import WebOpera
+    from app.package.format.webformat import WebFormat
 except Exception as e:
     #logging.info("=====================" + os.getcwd())
-    from ..network.dbopera import MongoDBOpera
-    from ..network.webopera import WebOpera
-    from ..format.webformat import WebFormat
+    from package.network import MongoDBOpera
+    from package.network import WebOpera
+    from package.format import WebFormat
 
 from concurrent.futures import ThreadPoolExecutor,as_completed
 
