@@ -171,29 +171,31 @@ def run_wait():
 def main():
     #logging.info("=====================" + os.getcwd())
     while(1):
-
-        logging.info("开始获取币种基础信息")
-        executor = ThreadPoolExecutor(max_workers=24)
-        all_task = [executor.submit(run_page, (page)) for page in range(1,25)]
-        for future in as_completed(all_task,300):
-            data = future.result()
-        logging.info("币种基础信息获取完成")
+        try:
+            holds_list.clear()
+            logging.info("开始获取币种基础信息")
+            executor = ThreadPoolExecutor(max_workers=24)
+            all_task = [executor.submit(run_page, (page)) for page in range(1,25)]
+            for future in as_completed(all_task,90):
+                data = future.result()
+            logging.info("币种基础信息获取完成")
 
 
        # '''
-        try:
+
             logging.info("开始获取币种持币信息")
             executor_holds = ThreadPoolExecutor(max_workers=50)
             all_task_holds = [executor_holds.submit(run_holds, (code)) for code in code_collect.find()]
-            for future in as_completed(all_task_holds,300):
+            for future in as_completed(all_task_holds,120):
                 code = future.result()
                 logging.info("币种:{} 对应持币信息获取完成.".format(code))
             MongoDBOpera().insert_list_to_collection(holds_collect,holds_list)
             logging.info("币种持币信息插入集合完成")
-            holds_list.clear()
-            run_wait()
         except Exception as e:
-            logging.error(u'main存在线程执行失败', e)
+            logging.error(u'main存在线程执行失败,但任然插入币种持币信息', e)
+            MongoDBOpera().insert_list_to_collection(holds_collect, holds_list)
+            logging.info("币种持币信息插入集合完成")
+        run_wait()
     '''
         executor_market = ThreadPoolExecutor(max_workers=200)
         all_task_markert = [executor_market.submit(run_market, (code)) for code in code_collect.find()]
