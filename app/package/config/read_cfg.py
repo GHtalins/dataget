@@ -1,11 +1,18 @@
 from configparser import ConfigParser
-
+import os
+import logging
 class ConfigOp:
     def __init__(self):
         # 初始化类
         try:
             self._cp = ConfigParser()
-            self._cp.read("/trade/app/package/config/pro.cfg")
+            cfg_file="./package/config/pro.cfg"
+            if os.path.exists(cfg_file):
+                self._cp.read(cfg_file)
+            else:
+                cfg_file = "/trade/app/package/config/pro.cfg"
+                self._cp.read(cfg_file)
+            logging.info("配置文件路径：" + cfg_file)
         except Exception as e:
             print(u'__init__ 失败.'+__file__, e)
 
