@@ -5,7 +5,7 @@ class ConfigOp:
         # 初始化类
         try:
             self._cp = ConfigParser()
-            self._cp.read("./package/config/pro.cfg")
+            self._cp.read("/trade/app/package/config/pro.cfg")
         except Exception as e:
             print(u'__init__ 失败.'+__file__, e)
 
