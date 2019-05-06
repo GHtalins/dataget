@@ -28,4 +28,4 @@ RUN cd /trade && pip install -r requirements.txt
 EXPOSE 80
 
 
-ENTRYPOINT ["python", "/trade/app/data/feixiaohao.py"]
+ENTRYPOINT ["python", "/trade/app/feixiaohao.py"]
