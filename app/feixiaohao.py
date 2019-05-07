@@ -125,6 +125,8 @@ def run_holds(item):
                                 'holders_list': hold_info["holders_list"]}
             holds_store_info["local_time"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             holds_list.append(holds_store_info)
+        else:
+            logging.warning(f"币种{code}持币信息返回为空，获取失败")
         return code
     except Exception as e:
         logging.error(u'run_holds获取货币' + code + '持币数据失败', e)
