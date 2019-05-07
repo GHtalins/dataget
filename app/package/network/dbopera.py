@@ -42,7 +42,7 @@ class MongoDBOpera:
                 logging.info(f"insert_to_collection list长度为{len(list)}")
                 if len(list) == 0 :
                     logging.info("insert_to_collection list为空，插入数据失败")
-                if len(list)<140000:
+                elif len(list)<140000:
                     collection.insert_many(list)
                 else:
                     n=len(list)/140000
