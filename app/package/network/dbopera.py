@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import os
-import sys
-
 
 try:
     from app.package.config.read_cfg import ConfigOp
+    from pymongo import MongoClient
 except Exception as e:
     from ...package.config.read_cfg import ConfigOp
 
-from pymongo import MongoClient
-
 import  logging
+
+
 class MongoDBOpera:
     #初始化，连接MONGODB数据库
     def connect(self,db_section):
@@ -22,11 +20,13 @@ class MongoDBOpera:
         except Exception as e:
             logging.error(u'__init__ 失败.'+__file__, e)
 
+    #获取MONGODB具体集合句柄
     def get_collection(self,name,collection):
         _dbname=self._conn[name]
         _collection=_dbname[collection]
         return _collection
 
+    #向指定集合插入单个信息
     def insert_to_collection(self,collection,query):
         try:
             if collection != None:
@@ -36,6 +36,7 @@ class MongoDBOpera:
         except Exception as e:
             logging.error(u'insert_to_collection ' + collection + ' 失败.'+__file__, e)
 
+    #向指定集合插入列表
     def insert_list_to_collection(self,collection,list):
         try:
             if collection != None:
@@ -55,6 +56,8 @@ class MongoDBOpera:
                 logging.info("insert_to_collection 集合句柄不存在，插入数据失败")
         except Exception as e:
             logging.error(u'insert_to_collection ' + collection + ' 失败.'+__file__, e)
+
+    #查询指定集合信息，返回单个
     def collection_find_one(self,collection,query):
         try:
             if collection != None:
@@ -67,7 +70,8 @@ class MongoDBOpera:
             logging.error(u'find_one query: '+query +'; '+ collection + ' 失败.'+__file__, e)
             return ''
 
-    def collection_find(self,collection,query):
+    #查询指定集合信息，返回多个
+    def collection_find(self,collection,query=None):
         try:
             _datadict=collection.find(query)
             return _datadict

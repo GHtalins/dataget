@@ -1,31 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import logging
-import os
-import sys
 import time
-
-#sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 try:
     from app.package.network.dbopera import MongoDBOpera
     from app.package.network.webopera import WebOpera
     from app.package.format.webformat import WebFormat
+    from concurrent.futures import ThreadPoolExecutor, as_completed
 except Exception as e:
-    from package.network import MongoDBOpera
-    from package.network import WebOpera
-    from package.format import WebFormat
-
-from concurrent.futures import ThreadPoolExecutor,as_completed
+    from .package.network import MongoDBOpera
+    from .package.network import WebOpera
+    from .package.format import WebFormat
 
 
 
-code_collect = None
-desc_collect = None
-holds_collect = None
-holds_list=[]
-market_list=[]
-
+code_collect,desc_collect,holds_collect= None,None,None
+holds_list,market_list,holds_fail=[],[],[]
+FAIL_FLAG=False
 logging.basicConfig(format='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s',
                     level=logging.DEBUG)
 
@@ -66,11 +58,12 @@ def get_desc_info(code):
         po_info = infos.xpath(
             "//div[@class='coinIntroduce']/div[@class='infoList']/div[@class='listRow']/div[@class='listCell']/span[@class='val']/text()")[
             6]
+        localtime = time.strftime("%Y-%m-%d", time.localtime())
     except Exception as e:
-        logging.error(u'get_desc_info获取货币' + code + '描述数据失败', e)
+        logging.error(f"get_desc_info获取货币{code}描述数据失败", e)
         return ''
-    return {'CODE': code, "描述": desc_info[0].text, "发行时间": fxsj_info, "发行价格": fxjg_info, "最大供应": zdgy_info,
-            "总供应": zgy_info, "上架交易所": jys_info, "算法": sf_info, "激励机制": po_info}
+    return {'CODE': code, "desc": desc_info[0].text, "pub_time": fxsj_info, "init_price": fxjg_info, "max": zdgy_info,
+            "total": zgy_info, "markets": jys_info, "math": sf_info, "power": po_info,"get_time":localtime}
 
 
 # 获取币种列表
@@ -79,9 +72,9 @@ def get_coin_list(page):
     try:
         wo = WebOpera(page_url)
         coin_list = wo.get_web_response()
-        logging.info('开始获取第'+str(page)+"页货币列表")
+        logging.info(f"开始获取第{page}页货币列表")
     except Exception as e:
-        logging.error(u'get_coin_list获取货币列表页' + str(page) + '数据失败', e)
+        logging.error(f"get_coin_list获取货币列表页{page}数据失败", e)
         return ''
     return coin_list
 
@@ -94,23 +87,22 @@ def run_page(page):
                 obj=MongoDBOpera().collection_find_one(code_collect,{'code': strs["code"]})
                 if obj is None:  # 如果数据库中没有，则插入
                     MongoDBOpera().insert_to_collection(code_collect,{'code': strs["code"], 'name': strs["name"], 'page': page})
-                    logging.info('发现新币种:' + strs["code"] + ",插入CODE集合")
+                    logging.info(f"发现新币种:{strs['code']},插入CODE集合")
                     desc=get_desc_info(strs["code"])
                     if desc != '':
                         MongoDBOpera().insert_to_collection(desc_collect,desc)
-                        logging.info('获取币种:' + strs["code"] + "描述信息,插入DESC集合")
+                        logging.info(f"获取币种{strs['code']}描述信息，插入DESC集合")
                     else:
-                        logging.info('获取币种:' + strs["code"] + "描述信息失败，未插入DESC集合")
+                        logging.info(f"获取币种{strs['code']}描述信息失败，未插入DESC集合")
         else:
-            logging.warning("第"+str(page)+"页货币列表获取失败")
+            logging.warning(f"第{page}页货币列表获取失败")
+
         return page
     except Exception as e:
-        logging.error(u'run_page获取货币列表页' + str(page) + '数据失败', e)
-
+        logging.error(f'run_page获取货币列表页{page}数据失败', e)
 
 #获取持币信息
-def run_holds(item):
-    code = item['code']
+def run_holds(code):
     holds_url = "https://dncapi.bqiapp.com/api/coin/holders?code=" + str(code) + "&side=30&webp=1"
     try:
         wo = WebOpera(holds_url)
@@ -123,15 +115,37 @@ def run_holds(item):
                                 'percentage_top50': hold_info["percentage_top50"],
                                 'update_time': hold_info["update_time"],
                                 'holders_list': hold_info["holders_list"]}
-            holds_store_info["local_time"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            holds_store_info["get_time"] = time.strftime("%Y-%m-%d", time.localtime())
             holds_list.append(holds_store_info)
         else:
             logging.warning(f"币种{code}持币信息返回为空，获取失败")
         return code
     except Exception as e:
-        logging.error(u'run_holds获取货币' + code + '持币数据失败', e)
+        logging.error(f"run_holds获取货币{code}持币数据失败", e)
 
-#获取交易数据信息
+def get_one_hold(code):
+    holds_url = "https://dncapi.bqiapp.com/api/coin/holders?code=" + str(code) + "&side=30&webp=1"
+    try:
+        wo = WebOpera(holds_url)
+        response_data = wo.get_web_response()
+        if response_data != '':
+            hold_info = response_data["data"]
+            holds_store_info = {'CODE': code, 'total_holders': hold_info["total_holders"],
+                                'percentage_top10': hold_info["percentage_top10"],
+                                'percentage_top20': hold_info["percentage_top20"],
+                                'percentage_top50': hold_info["percentage_top50"],
+                                'update_time': hold_info["update_time"],
+                                'holders_list': hold_info["holders_list"]}
+            holds_store_info["get_time"] = time.strftime("%Y-%m-%d", time.localtime())
+        else:
+            logging.warning(f"币种{code}持币信息返回为空，获取失败")
+            holds_store_info=''
+        return holds_store_info
+    except Exception as e:
+        logging.error(f"run_holds获取货币{code}持币数据失败", e)
+        return ''
+
+#获取交易数据信息，未使用
 def run_market(item):
     try:
         code=item["code"]
@@ -147,21 +161,48 @@ def run_market(item):
                     market_list.append(info)
         return code
     except Exception as e:
-        logging.error(u'run_market获取货币' + code + '市场数据失败', e)
+        logging.error(f"run_market获取货币{code}市场数据失败", e)
+
+#执行失败币种列表和检查币种描述信息缺失情况
+def run_fail():
+    logging.info("开始执行失败列表")
+    cmp_code,cmp_holds,cmp_desc = [],[],[]
+    localtime = time.strftime("%Y-%m-%d", time.localtime())
+    try:
+        for code_item in MongoDBOpera().collection_find(code_collect):
+            cmp_code.append(code_item["code"])
+
+        logging.info("开始执行币种持币信息失败列表")
+        for hold_item in MongoDBOpera().collection_find(holds_collect,{"get_time": localtime}):
+            cmp_holds.append(hold_item["CODE"])
+        list_hold_cmp = set(cmp_code).difference(set(cmp_holds))
+        for code in list_hold_cmp:
+            hold_info = get_one_hold(code)
+            if hold_info != '':
+                MongoDBOpera().insert_to_collection(holds_collect, hold_info)
+                logging.info(f"获取币种{code}持币信息,插入HOLD集合")
+            else:
+                logging.info(f"获取币种{code}持币信息失败，未插入HOLD集合")
+        logging.info("缺失币种持币信息插入集合完成")
+
+        logging.info("开始执行币种描述信息缺失补充")
+
+        for desc_item in MongoDBOpera().collection_find(desc_collect,{"get_time": localtime}):
+            cmp_desc.append(desc_item["CODE"])
+        list_cmp=set(cmp_code).difference(set(cmp_desc))
+        for desc in list_cmp:
+            desc_info = get_desc_info(desc)
+            if desc_info != '':
+                MongoDBOpera().insert_to_collection(desc_collect, desc_info)
+                logging.info(f"获取币种{desc}描述信息,插入DESC集合")
+            else:
+                logging.info(f"获取币种{desc}描述信息失败，未插入DESC集合")
+        logging.info("失败列表执行完成")
+    except Exception as e:
+        logging.error("失败列表执行存在错误，但会忽略")
 
 
-
-def multi_thread(task):
-    if task == 'CODE':
-        executor = ThreadPoolExecutor(max_workers=10)
-        all_task = [executor.submit(run_page, (page)) for page in range(1, 25)]
-    elif task == 'HOLDS':
-        executor_holds = ThreadPoolExecutor(max_workers=10)
-        all_task_holds = [executor_holds.submit(run_holds, (code)) for code in code_collect.find()]
-    elif task == 'MARKET':
-        executor_market = ThreadPoolExecutor(max_workers=10)
-        all_task_holds = [executor_market.submit(run_market, (code)) for code in code_collect.find()]
-
+#执行循环等待
 def run_wait():
     for i in range(60 * 60 * 24):
         time.sleep(1)
@@ -170,43 +211,35 @@ def run_wait():
         minus=(deadline%3600)//60
         sec=deadline%60
         logging.info(f"下次获取货币信息倒计时:{hour}时:{minus}分:{sec}秒")
+
+
+
 def main():
-    #logging.info("=====================" + os.getcwd())
     while(1):
         try:
             holds_list.clear()
+            FAIL_FLAG=True
             logging.info("开始获取币种基础信息")
             executor = ThreadPoolExecutor(max_workers=24)
             all_task = [executor.submit(run_page, (page)) for page in range(1,25)]
             for future in as_completed(all_task,90):
                 data = future.result()
-            logging.info("币种基础信息获取完成")
+            logging.info("币种基础信息获取完成，开始获取币种持币信息")
 
-
-       # '''
-
-            logging.info("开始获取币种持币信息")
             executor_holds = ThreadPoolExecutor(max_workers=50)
-            all_task_holds = [executor_holds.submit(run_holds, (code)) for code in code_collect.find()]
+            all_task_holds = [executor_holds.submit(run_holds, (item["code"])) for item in code_collect.find()]
             for future in as_completed(all_task_holds,120):
                 code = future.result()
-                logging.info("币种:{} 对应持币信息获取完成.".format(code))
+                logging.info(f"币种:{format(code)} 对应持币信息获取完成.")
             MongoDBOpera().insert_list_to_collection(holds_collect,holds_list)
             logging.info("币种持币信息插入集合完成")
         except Exception as e:
             logging.error(u'main存在线程执行失败,但任然插入币种持币信息', e)
             MongoDBOpera().insert_list_to_collection(holds_collect, holds_list)
             logging.info("币种持币信息插入集合完成")
+        run_fail()
         run_wait()
-    '''
-        executor_market = ThreadPoolExecutor(max_workers=200)
-        all_task_markert = [executor_market.submit(run_market, (code)) for code in code_collect.find()]
-        for future in as_completed(all_task_markert):
-            code = future.result()
-            print("in main: get market {} success".format(code))
-        print("任务全部完成")
-        MongoDBOpera().insert_list_to_collection(holds_collect, market_list)
-    '''
+
 
 
 if __name__ == '__main__':

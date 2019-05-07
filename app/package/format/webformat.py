@@ -3,6 +3,8 @@
 
 import json
 from lxml import etree
+import logging
+
 
 class WebFormat:
 
@@ -12,8 +14,8 @@ class WebFormat:
             _json_data = json.loads(data)
             return _json_data
         except Exception as e:
+            logging.error(u'check_json 转换失败.' + __file__, e)
             return ''
-
 
     #校验&获取HTML格式
     def check_html(self,data):
@@ -21,11 +23,14 @@ class WebFormat:
             _html_data=etree.HTML(data)
             return _html_data
         except Exception as e:
+            logging.error(u'check_html 转换失败.' + __file__, e)
             return ''
 
+    #将bytes转成字符串
     def bytedecode(self,data):
         try:
             _str_data=bytes.decode(data)
             return _str_data
         except Exception as e:
+            logging.error(u'bytedecode 转换失败.' + __file__, e)
             return ''
