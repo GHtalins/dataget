@@ -170,7 +170,7 @@ def main():
                     executor_holds = ThreadPoolExecutor(max_workers=len(desc_diff_list))
 
                 all_task_holds = [executor_holds.submit(run_desc, item) for item in desc_diff_list]
-                for future in as_completed(all_task_holds,600):
+                for future in as_completed(all_task_holds,1200):
                     code = future.result()
                     logging.info(f"币种:{format(code)} 对应描述信息获取完成.")
                 #MongoDBOpera().insert_list_to_collection(desc_collect, desc_list)
@@ -186,7 +186,7 @@ def main():
                 else:
                     executor_holds = ThreadPoolExecutor(max_workers=len(hold_diff_list))
                 all_task_holds = [executor_holds.submit(run_holds, item) for item in hold_diff_list]
-                for future in as_completed(all_task_holds, 600):
+                for future in as_completed(all_task_holds, 1200):
                     code = future.result()
                     logging.info(f"币种:{format(code)} 对应持币信息获取完成.")
                 #MongoDBOpera().insert_list_to_collection(holds_collect, desc_list)
