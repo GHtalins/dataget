@@ -4,6 +4,7 @@
 try:
     from app.package.config.read_cfg import ConfigOp
     from pymongo import MongoClient
+    import pymongo
 except Exception as e:
     from ...package.config.read_cfg import ConfigOp
 
@@ -78,3 +79,8 @@ class MongoDBOpera:
         except Exception as e:
             logging.error(u'find_all query: '+query +'; '+ collection + ' 失败.'+__file__, e)
             return None
+    def is_collection(self,x):
+        if isinstance(x,pymongo.collection.Collection):
+            return True
+        else:
+            return False
