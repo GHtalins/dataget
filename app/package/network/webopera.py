@@ -29,6 +29,8 @@ class WebOpera():
         try:
             self._req=request.urlopen(self._req).read()
             self._response = WebFormat().check_json(self._req)
+            if self._response == "":
+                logging.warning("获取请求数据失败")
             return self._response
         except Exception as e:
             logging.error(u'get_web_response url'+self._url+' 失败.'+__file__, e)
