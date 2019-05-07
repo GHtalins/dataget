@@ -61,8 +61,8 @@ def run_desc(code):
         localtime = time.strftime("%Y-%m-%d", time.localtime())
         desc_item={'CODE': code, "desc": desc_info[0].text, "pub_time": fxsj_info, "init_price": fxjg_info, "max": zdgy_info,
             "total": zgy_info, "markets": jys_info, "math": sf_info, "power": po_info,"get_time":localtime}
+        MongoDBOpera().insert_to_collection(desc_collect,desc_item)
 
-        desc_list.append(desc_item)
     except Exception as e:
         logging.error(f"get_desc_info获取货币{code}描述数据失败", e)
     return code
@@ -102,7 +102,7 @@ def run_holds(code):
                                 'update_time': hold_info["update_time"],
                                 'holders_list': hold_info["holders_list"]}
             holds_store_info["get_time"] = time.strftime("%Y-%m-%d", time.localtime())
-            holds_list.append(holds_store_info)
+            MongoDBOpera().insert_to_collection(holds_collect, holds_store_info)
         else:
             logging.warning(f"币种{code}持币信息返回为空，获取失败")
     except Exception as e:
@@ -151,8 +151,7 @@ def main():
     while(1):
         try:
             localtime = time.strftime("%Y-%m-%d", time.localtime())
-            holds_list.clear()
-            desc_list.clear()
+
             logging.info("开始获取币种基础信息")
             executor = ThreadPoolExecutor(max_workers=24)
             all_task = [executor.submit(run_page, (page)) for page in range(1,25)]
@@ -174,7 +173,7 @@ def main():
                 for future in as_completed(all_task_holds,600):
                     code = future.result()
                     logging.info(f"币种:{format(code)} 对应描述信息获取完成.")
-                MongoDBOpera().insert_list_to_collection(desc_collect, desc_list)
+                #MongoDBOpera().insert_list_to_collection(desc_collect, desc_list)
             logging.info("币种描述信息获取完成")
 
 
@@ -190,12 +189,12 @@ def main():
                 for future in as_completed(all_task_holds, 600):
                     code = future.result()
                     logging.info(f"币种:{format(code)} 对应持币信息获取完成.")
-                MongoDBOpera().insert_list_to_collection(holds_collect, desc_list)
+                #MongoDBOpera().insert_list_to_collection(holds_collect, desc_list)
             logging.info("币种持币信息插入集合完成")
-            run_wait(10800)
+            run_wait(7200)
         except Exception as e:
             logging.error(u'main存在线程执行失败,本次不插入新补充的币种描述和持币信息', e)
-            run_wait(10800)
+            run_wait(7200)
 
 
 
