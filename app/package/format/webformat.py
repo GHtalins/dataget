@@ -4,7 +4,7 @@
 import json
 from lxml import etree
 import logging
-
+from app.package.data.logger import log
 
 class WebFormat:
 
@@ -14,8 +14,8 @@ class WebFormat:
             _json_data = json.loads(data)
             return _json_data
         except Exception as e:
-            logging.error(u'check_json 转换失败.' + __file__, e)
-            logging.info(u"data is["+data+"]")
+            log.logger.error(u'check_json 转换失败.' + __file__, e)
+            log.logger.info(u"data is["+data+"]")
             return ''
 
     #校验&获取HTML格式
@@ -24,7 +24,7 @@ class WebFormat:
             _html_data=etree.HTML(data)
             return _html_data
         except Exception as e:
-            logging.error(u'check_html 转换失败.' + __file__, e)
+            log.logger.error(u'check_html 转换失败.' + __file__, e)
             return ''
 
     #将bytes转成字符串
@@ -33,5 +33,5 @@ class WebFormat:
             _str_data=bytes.decode(data)
             return _str_data
         except Exception as e:
-            logging.error(u'bytedecode 转换失败.' + __file__, e)
+            log.logger.error(u'bytedecode 转换失败.' + __file__, e)
             return ''

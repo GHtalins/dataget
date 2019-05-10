@@ -8,6 +8,7 @@ try:
     from app.package.network.webopera import WebOpera
     from app.package.format.webformat import WebFormat
     from app.package.data.logger import Logger
+    from app.package.data.logger import log
     from concurrent.futures import ThreadPoolExecutor, as_completed
 except Exception as e:
     from .package.network import MongoDBOpera
@@ -18,8 +19,7 @@ except Exception as e:
 
 code_collect,desc_collect,holds_collect= None,None,None
 holds_list,desc_list,holds_fail=[],[],[]
-FAIL_FLAG=False
-log = Logger('dataget.log',level='debug')
+
 #logging.basicConfig(filename='dataget.log',filemode='a',format='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s',
                   #  level=logging.DEBUG)
 
@@ -64,7 +64,7 @@ def run_desc(code):
         desc_item={'CODE': code, "desc": desc_info[0].text, "pub_time": fxsj_info, "init_price": fxjg_info, "max": zdgy_info,
             "total": zgy_info, "markets": jys_info, "math": sf_info, "power": po_info,"get_time":localtime}
         MongoDBOpera().insert_to_collection(desc_collect,desc_item)
-
+        log.logger.info(f"get_desc_info:get coin {code}description finished")
     except Exception as e:
         log.logger.error(f"get_desc_info:get coin {code}description failed", e)
         #log.logger.error(u"get_desc_info获取货币"+{code}+"描述数据失败", e)
@@ -107,6 +107,7 @@ def run_holds(code):
                                 'holders_list': hold_info["holders_list"]}
             holds_store_info["get_time"] = time.strftime("%Y-%m-%d", time.localtime())
             MongoDBOpera().insert_to_collection(holds_collect, holds_store_info)
+            log.logger.info(f"coin:{code} holds get finished")
         else:
             log.logger.warning(f"coin:{code} holds info response empty")
     except Exception as e:
@@ -175,7 +176,7 @@ def main():
                 all_task_holds = [executor_holds.submit(run_desc, item) for item in desc_diff_list]
                 for future in as_completed(all_task_holds,1200):
                     code = future.result()
-                    log.logger.info(f"coin:{format(code)} description get finished.")
+                    #log.logger.info(f"coin:{format(code)} description get finished.")
                 #MongoDBOpera().insert_list_to_collection(desc_collect, desc_list)
             log.logger.info("all coins description finished")
 
@@ -190,7 +191,7 @@ def main():
                 all_task_holds = [executor_holds.submit(run_holds, item) for item in hold_diff_list]
                 for future in as_completed(all_task_holds, 1200):
                     code = future.result()
-                    log.logger.info(f"coin:{format(code)} holds info get finished.")
+                    #log.logger.info(f"coin:{format(code)} holds info get finished.")
                 #MongoDBOpera().insert_list_to_collection(holds_collect, desc_list)
             log.logger.info("all coins holds info insert finished")
             run_wait(3600)

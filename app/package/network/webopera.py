@@ -7,12 +7,14 @@ import sys
 from urllib import request
 try:
     from app.package.format.webformat import WebFormat
+    from app.package.data.logger import Logger
+    from app.package.data.logger import log
 except Exception as e:
     from ...package.format import WebFormat
-
+    from ...package.data.logger import Logger
 import logging
 
-
+#log = Logger('dataget.log',level='debug')
 class WebOpera():
     def __init__(self,url):
         self._url=url
@@ -33,10 +35,10 @@ class WebOpera():
             self._req=request.urlopen(self._req).read()
             self._response = WebFormat().check_json(self._req)
             if self._response == "":
-                logging.warning("获取请求数据失败")
+                log.logger.warning("获取请求数据失败")
             return self._response
         except Exception as e:
-            logging.error(u'get_web_response url'+self._url+' 失败.'+__file__, e)
+            log.logger.error(u'get_web_response url'+self._url+' 失败.'+__file__, e)
             return ''
 
     def get_web_html(self):
@@ -47,7 +49,7 @@ class WebOpera():
                 self._response=WebFormat().bytedecode(self._response)
             return self._response
         except Exception as e:
-            logging.error(u'get_web_response url' + self._url + ' 失败.' + __file__, e)
+            log.logger.error(u'get_web_response url' + self._url + ' 失败.' + __file__, e)
             return ''
 
 
