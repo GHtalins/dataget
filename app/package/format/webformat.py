@@ -15,6 +15,7 @@ class WebFormat:
             return _json_data
         except Exception as e:
             logging.error(u'check_json 转换失败.' + __file__, e)
+            logging.info(u"data is["+data+"]")
             return ''
 
     #校验&获取HTML格式
