@@ -33,6 +33,8 @@ class WebOpera():
         self._response=''
         try:
             self._req=request.urlopen(self._req).read()
+            if type(self._req) == bytes:
+                self._req=WebFormat().bytedecode(self._req)
             self._response = WebFormat().check_json(self._req)
             if self._response == "":
                 log.logger.warning("获取请求数据失败")
