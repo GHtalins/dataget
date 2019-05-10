@@ -11,6 +11,7 @@ class WebFormat:
     #校验&获取JSON格式
     def check_json(self,data):
         try:
+
             _json_data = json.loads(data)
             return _json_data
         except Exception as e:

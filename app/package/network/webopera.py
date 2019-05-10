@@ -32,10 +32,10 @@ class WebOpera():
     def get_web_response(self):
         self._response=''
         try:
-            self._req=request.urlopen(self._req).read()
-            if type(self._req) == bytes:
-                self._req=WebFormat().bytedecode(self._req)
-            self._response = WebFormat().check_json(self._req)
+            self._response=request.urlopen(self._req).read()
+            if type(self._response) == bytes:
+                self._response=WebFormat().bytedecode(self._response)
+            self._response = WebFormat().check_json(self._response)
             if self._response == "":
                 log.logger.warning("获取请求数据失败")
             return self._response
